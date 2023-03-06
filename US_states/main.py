@@ -49,10 +49,7 @@ while loop:
 if count == 50:
     print("Congratulations, you guessed all the states!")
 
-need_to_learn = []
-for item in all_states:
-    if item not in accepted:
-        need_to_learn.append(item)
+need_to_learn = [item for item in all_states if item not in accepted]
 
 
 pandas.DataFrame(need_to_learn).to_csv(f"Need_to_learn({len(all_states)-count}).csv")

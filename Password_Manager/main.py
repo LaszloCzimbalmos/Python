@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 import random
+import json
 
 # constants
 BG = "#B7C4CF"
@@ -28,6 +29,14 @@ def save_data():
     password = entry_password.get()
     data_line = f"{website} | {username} | {password}\n"
 
+    new_data = {
+        website: {
+            "username": username,
+            "password": password,
+        }
+
+    }
+
     if len(website) == 0 or len(password) == 0:
         messagebox.showinfo(title="Oops!", message="Please fill in every field!")
 
@@ -35,11 +44,19 @@ def save_data():
         is_ok = messagebox.askokcancel(title="Save Data", message=f"Want to save?\n{data_line}")
 
         if is_ok:
-            file = open("data.txt", "a")
-            file.write(data_line)
-            entry_password.delete(0, END)
-            entry_website.delete(0, END)
-            file.close()
+            try:
+                with open("data.json", "r") as data:
+                    loaded = json.load(data)
+            except FileNotFoundError:
+                with open("data.json", "w") as data:
+                    json.dump(new_data, data, indent=4)
+            else:
+                loaded.update(new_data)
+                with open("data.json", "w") as data:
+                    json.dump(loaded, data, indent=4)
+            finally:
+                entry_password.delete(0, END)
+                entry_website.delete(0, END)
 
 
 def show_data():

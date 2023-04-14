@@ -60,10 +60,31 @@ def save_data():
 
 
 def show_data():
-    file = open("data.txt", "r")
-    out = file.readlines()
-    out_str = ''.join(out)
-    messagebox.showinfo(title="Saved Passwords", message=out_str)
+    with open("data.json", "r") as file:
+        data = json.load(file)
+
+    out = "\n".join(list(data))
+    new_window = Toplevel(window, height=300, width=300, pady=20, padx=20, bg=BG)
+    label_data = Label(new_window, text=f"Saved websites:\n{out}", bg=BG, font=("Inter", 12, "bold"), justify="left")
+    label_data.grid(row=0, column=0, sticky=W)
+
+
+def find_password():
+    try:
+        with open("data.json", "r") as data:
+            website = entry_website.get()
+            dict = json.load(data)
+            values = list(dict[website].values())
+    except FileNotFoundError:
+        messagebox.showinfo(title="Error", message="The database is empty.\nTry to add new data.")
+    except KeyError:
+        messagebox.showinfo(title="Not Found", message="The searched website is not found.")
+    else:
+        values = list(dict[website].values())
+        messagebox.showinfo(title=website, message=f"username/email: {values[0]}\npassword: {values[1]}")
+
+
+
 # ---------------------------- UI SETUP ------------------------------- #
 
 # window
@@ -91,8 +112,8 @@ label_password.grid(row=4, column=0, sticky=E)
 
 
 # entries
-entry_website = Entry(width=36, bg=ENTRY_BG)
-entry_website.grid(row=2, column=1, columnspan=2)
+entry_website = Entry(width=22, bg=ENTRY_BG)
+entry_website.grid(row=2, column=1, columnspan=2, sticky=W)
 entry_website.focus()
 
 entry_username = Entry(width=36, bg=ENTRY_BG)
@@ -104,13 +125,16 @@ entry_password.grid(row=4, column=1, sticky=W, columnspan=2)
 
 
 # buttons
+button_search = Button(width=14, bg=BUTTON_BG, text="Search", font=("Inter", 6, "bold"), command=find_password)
+button_search.grid(row=2, column=1, columnspan=2, sticky=E)
+
 button_generate_pw = Button(width=14, bg=BUTTON_BG, text="Generate Password", font=("Inter", 6, "bold"), command=password_gen)
 button_generate_pw.grid(row=4, column=1, columnspan=2, sticky=E)
 
 button_add = Button(width=30, bg=BUTTON_BG, text="Add", font=("Inter", 9, "bold"), command=save_data)
 button_add.grid(row=5, column=1, columnspan=3, sticky=W)
 
-button_show_data = Button(width=15, bg=BUTTON_BG, text="Show Passwords", font=("Inter", 8, "bold"), command=show_data)
+button_show_data = Button(width=15, bg=BUTTON_BG, text="Show Websites", font=("Inter", 8, "bold"), command=show_data)
 button_show_data.grid(row=0, column=0, sticky=NW)
 
 window.mainloop()
